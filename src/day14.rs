@@ -1,15 +1,17 @@
 use crate::util::load;
 
-pub fn input() -> Vec<String> {
+type Input = Vec<String>;
+
+pub fn input() -> Input {
     let values: Vec<String> = load("data/day14.txt");
     values
 }
 
-pub fn part1(values: Vec<String>) -> u32 {
+pub fn part1(values: Input) -> u32 {
     values.len() as u32
 }
 
-pub fn part2(values: Vec<String>) -> u32 {
+pub fn part2(values: Input) -> u32 {
     values.len() as u32
 }
 
