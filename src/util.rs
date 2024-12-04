@@ -12,7 +12,7 @@ pub struct Coord2D<T> {
 }
 
 impl<T> Coord2D<T> {
-    pub fn new(x: T, y: T) -> Self {
+    pub const fn new(x: T, y: T) -> Self {
         Coord2D { x, y }
     }
 }
