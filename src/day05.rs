@@ -78,8 +78,33 @@ pub fn part1((rules, updates): Input) -> u32 {
     result
 }
 
+fn get_ordered_middle(update: Update, rules: &Rules) -> u32 {
+    let mut ordered = vec![];
+    for page in update.keys() {
+        let mut inserted = false;
+        let before = rules.get(page).unwrap();
+        for index in 0..ordered.len() {
+            if before.contains(ordered[index]) {
+                ordered.insert(index, page);
+                inserted = true;
+                break;
+            }
+        }
+        if !inserted {
+            ordered.push(page);
+        }
+    }
+    *ordered[(ordered.len() - 1) / 2]
+}
+
 pub fn part2((rules, updates): Input) -> u32 {
-    0
+    let mut result = 0;
+    for update in updates {
+        if !is_valid(&rules, &update) {
+            result += get_ordered_middle(update, &rules);
+        }
+    }
+    result
 }
 
 #[cfg(test)]
@@ -93,6 +118,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 0);
+        assert_eq!(part2(input()), 5273);
     }
 }
