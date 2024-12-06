@@ -5,6 +5,14 @@ use std::hash::Hash;
 use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+pub enum Direction {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coord2D<T> {
     pub x: T,
