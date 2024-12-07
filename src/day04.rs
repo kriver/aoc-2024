@@ -11,12 +11,6 @@ const DIRS1: [Coord2D<i32>; 8] = [
     Coord2D::new(0, -1),
     Coord2D::new(1, -1),
 ];
-const DIRS2: [Coord2D<i32>; 4] = [
-    Coord2D::new(1, 1),
-    Coord2D::new(-1, 1),
-    Coord2D::new(-1, -1),
-    Coord2D::new(1, -1),
-];
 const XMAS: &'static str = "XMAS";
 
 pub fn input() -> Input {
