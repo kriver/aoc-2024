@@ -3,6 +3,7 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::{BufRead, BufReader};
+use std::ops::{Add, Sub};
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
@@ -22,6 +23,22 @@ pub struct Coord2D<T> {
 impl<T> Coord2D<T> {
     pub const fn new(x: T, y: T) -> Self {
         Coord2D { x, y }
+    }
+}
+
+impl<T: Add<Output = T>> Add for Coord2D<T> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Coord2D::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl<T: Sub<Output = T>> Sub for Coord2D<T> {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Coord2D::new(self.x - rhs.x, self.y - rhs.y)
     }
 }
 
