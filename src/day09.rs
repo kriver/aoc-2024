@@ -26,7 +26,7 @@ pub fn part1(values: Input) -> usize {
     let mut gap_sz = 0;
     let mut is_gap = false;
     loop {
-        let (id, mut cnt, max_sz) = if is_gap {
+        let (id, cnt, max_sz) = if is_gap {
             if gap_sz == 0 {
                 gap_sz = values[forward] as usize;
             }
@@ -68,8 +68,9 @@ pub fn part1(values: Input) -> usize {
     checksum
 }
 
-pub fn part2(values: Input) -> u32 {
-    values.len() as u32
+pub fn part2(values: Input) -> usize {
+
+    0
 }
 
 #[cfg(test)]
