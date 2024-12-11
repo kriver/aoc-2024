@@ -88,7 +88,7 @@ pub fn part1(mut input: Input) -> usize {
 }
 
 pub fn part2(mut input: Input) -> u32 {
-    let path = patrol(&mut input);
+    let _path = patrol(&mut input);
     0
 }
 
