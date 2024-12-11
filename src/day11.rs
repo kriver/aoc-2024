@@ -1,24 +1,40 @@
+use std::collections::HashMap;
+
 use crate::util::load;
 
-type Input = Vec<String>;
+type Input = HashMap<String, usize>;
 
 pub fn input() -> Input {
     let values: Vec<String> = load("data/day11.txt");
-    values[0].split_whitespace().map(|s| s.to_owned()).collect()
+    values[0]
+        .split_whitespace()
+        .map(|s| (s.to_owned(), 1))
+        .collect()
 }
 
 fn multi_blink(stones: Input, times: usize) -> Input {
+    fn add(stones: &mut Input, stone: String, cnt: usize) {
+        stones.entry(stone).and_modify(|c| *c += cnt).or_insert(cnt);
+    }
     fn blink(stones: Input) -> Input {
-        let mut new_stones = vec![];
-        for stone in stones {
+        let mut new_stones = HashMap::new();
+        for (stone, cnt) in stones {
             if stone == "0" {
-                new_stones.push("1".to_owned());
+                add(&mut new_stones, "1".to_string(), cnt);
             } else if stone.len() % 2 == 0 {
                 let l = stone.len() / 2;
-                new_stones.push(stone[0..l].to_owned());
-                new_stones.push(stone[l..].parse::<u64>().unwrap().to_string());
+                add(&mut new_stones, stone[0..l].to_owned(), cnt);
+                add(
+                    &mut new_stones,
+                    stone[l..].parse::<u64>().unwrap().to_string(),
+                    cnt,
+                );
             } else {
-                new_stones.push((stone.parse::<u64>().unwrap() * 2024).to_string());
+                add(
+                    &mut new_stones,
+                    (stone.parse::<u64>().unwrap() * 2024).to_string(),
+                    cnt,
+                );
             }
         }
         new_stones
@@ -30,11 +46,11 @@ fn multi_blink(stones: Input, times: usize) -> Input {
 }
 
 pub fn part1(stones: Input) -> usize {
-    multi_blink(stones, 25).len()
+    multi_blink(stones, 25).values().sum()
 }
 
 pub fn part2(stones: Input) -> usize {
-    0
+    multi_blink(stones, 75).values().sum()
 }
 
 #[cfg(test)]
@@ -48,6 +64,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 0);
+        assert_eq!(part2(input()), 277444936413293);
     }
 }
