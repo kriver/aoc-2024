@@ -6,7 +6,9 @@ use std::io::{BufRead, BufReader};
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+use strum::EnumIter;
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, EnumIter)]
 pub enum Direction {
     Up,
     Right,
@@ -14,10 +16,16 @@ pub enum Direction {
     Left,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coord2D<T> {
     pub x: T,
     pub y: T,
+}
+
+impl<T: Debug> Debug for Coord2D<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:?}, {:?})", self.x, self.y)
+    }
 }
 
 impl<T> Coord2D<T> {
