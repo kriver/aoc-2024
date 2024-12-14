@@ -1,4 +1,4 @@
-use std::cmp::min;
+use std::{cmp::min, collections::HashMap, usize};
 
 use crate::util::{char2num, load};
 
@@ -68,9 +68,70 @@ pub fn part1(values: Input) -> usize {
     checksum
 }
 
-pub fn part2(values: Input) -> usize {
+pub fn part2(sizes: Input) -> usize {
+    // mapping gap sizes to positions
+    let mut gaps: HashMap<usize, Vec<usize>> = HashMap::new();
+    // file positions with size and id
+    let mut files: Vec<(usize, usize, usize)> = vec![];
+    let mut pos = 0;
+    let mut file_id = 0;
+    for (i, sz) in sizes.iter().enumerate() {
+        if i % 2 == 0 {
+            // a file
+            files.push((pos, *sz as usize, file_id));
+            file_id += 1;
+        } else {
+            // a gap
+            gaps.entry(*sz as usize)
+                .and_modify(|v| v.push(pos))
+                .or_insert(vec![pos]);
+        }
+        pos += *sz as usize;
+    }
+    // println!("Files {:?}", files);
+    // println!("Gaps {:?}", gaps);
 
-    0
+    for f in (0..files.len()).rev() {
+        let (f_pos, f_sz, _) = files[f];
+        // find first gap of matching size
+        let mut first_pos = usize::MAX;
+        let mut first_sz = 0;
+        for g_sz in f_sz..=9 {
+            if let Some(g) = gaps.get(&g_sz) {
+                if g[0] < first_pos && g[0] < f_pos {
+                    first_pos = g[0];
+                    first_sz = g_sz;
+                }
+            }
+        }
+        if first_sz == 0 {
+            continue; // nothing found
+        }
+        // move file
+        let g = gaps.get_mut(&first_sz).unwrap();
+        let g_pos = g.remove(0);
+        if g.is_empty() {
+            gaps.remove(&first_sz);
+        }
+        files[f].0 = g_pos; // set new position
+        if first_sz > f_sz {
+            let new_g_sz = first_sz - f_sz;
+            let new_g_pos = g_pos + f_sz;
+            gaps.entry(new_g_sz)
+                .and_modify(|v| {
+                    if let Err(idx) = v.binary_search(&new_g_pos) {
+                        v.insert(idx, new_g_pos);
+                    } else {
+                        unreachable!("should not happen")
+                    }
+                })
+                .or_insert(vec![new_g_pos]);
+        }
+    }
+    files
+        .into_iter()
+        .map(|(pos, sz, id)| (pos..(pos + sz)).map(|p| p * id).sum::<usize>())
+        .sum()
 }
 
 #[cfg(test)]
@@ -84,6 +145,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 0);
+        assert_eq!(part2(input()), 6360363199987);
     }
 }
