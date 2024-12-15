@@ -16,6 +16,17 @@ pub enum Direction {
     Left,
 }
 
+impl From<Direction> for Coord2D<i32> {
+    fn from(dir: Direction) -> Self {
+        match dir {
+            Direction::Up => Coord2D::new(0, -1),
+            Direction::Right => Coord2D::new(1, 0),
+            Direction::Down => Coord2D::new(0, 1),
+            Direction::Left => Coord2D::new(-1, 0),
+        }
+    }
+}
+
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coord2D<T> {
     pub x: T,
