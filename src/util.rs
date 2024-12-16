@@ -27,6 +27,26 @@ impl From<Direction> for Coord2D<i32> {
     }
 }
 
+impl Direction {
+    pub fn turn_left(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Left,
+            Direction::Right => Direction::Up,
+            Direction::Down => Direction::Right,
+            Direction::Left => Direction::Down,
+        }
+    }
+
+    pub fn turn_right(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up
+        }
+    }
+}
+
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coord2D<T> {
     pub x: T,
