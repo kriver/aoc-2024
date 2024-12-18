@@ -42,7 +42,16 @@ impl Direction {
             Direction::Up => Direction::Right,
             Direction::Right => Direction::Down,
             Direction::Down => Direction::Left,
-            Direction::Left => Direction::Up
+            Direction::Left => Direction::Up,
+        }
+    }
+
+    pub fn one80(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Down,
+            Direction::Right => Direction::Left,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
         }
     }
 }
@@ -81,18 +90,18 @@ impl<T: Sub<Output = T>> Sub for Coord2D<T> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
-pub struct Coord3D<T> {
-    pub x: T,
-    pub y: T,
-    pub z: T,
-}
+// #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
+// pub struct Coord3D<T> {
+//     pub x: T,
+//     pub y: T,
+//     pub z: T,
+// }
 
-impl<T> Coord3D<T> {
-    pub fn new(x: T, y: T, z: T) -> Self {
-        Coord3D { x, y, z }
-    }
-}
+// impl<T> Coord3D<T> {
+//     pub fn new(x: T, y: T, z: T) -> Self {
+//         Coord3D { x, y, z }
+//     }
+// }
 
 pub fn load<T>(filename: &str) -> Vec<T>
 where
