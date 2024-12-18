@@ -1,12 +1,13 @@
 use std::{
     cmp::Ordering,
-    collections::{BinaryHeap, HashMap},
+    collections::{BinaryHeap, HashMap, HashSet},
 };
 
 use crate::util::{load, Coord2D, Direction, Grid};
 
 type Coord = Coord2D<i32>;
 type Square = HashMap<Direction, u32>; // minimum cost per direction
+type Maze = Grid<i32, Square>;
 
 #[derive(Eq, PartialEq)]
 struct State {
@@ -33,7 +34,7 @@ impl Ord for State {
 pub struct Input {
     start: Coord,
     end: Coord,
-    maze: Grid<i32, Square>,
+    maze: Maze,
 }
 
 pub fn input() -> Input {
@@ -66,7 +67,7 @@ pub fn input() -> Input {
     }
 }
 
-pub fn part1(mut input: Input) -> u32 {
+fn travel(maze: &mut Maze, start: Coord) {
     fn update(
         square: &mut Square,
         pos: &Coord,
@@ -74,22 +75,27 @@ pub fn part1(mut input: Input) -> u32 {
         cost: u32,
         todo: &mut BinaryHeap<State>,
     ) {
-        if square.get(dir).unwrap_or(&u32::MAX) > &cost {
+        let prev_cost = square.get(dir).unwrap_or(&u32::MAX);
+        if *prev_cost > cost {
             todo.push(State::new(*pos, *dir, cost));
             square.insert(*dir, cost);
         }
     }
     let mut todo: BinaryHeap<State> = BinaryHeap::new();
-    todo.push(State::new(input.start, Direction::Right, 0));
-    todo.push(State::new(input.start, Direction::Up, 1000));
+    todo.push(State::new(start, Direction::Right, 0));
+    todo.push(State::new(start, Direction::Up, 1000));
     while let Some(State { pos, dir, cost }) = todo.pop() {
         let new_pos = pos + dir.into();
-        if let Some(square) = input.maze.squares.get_mut(&new_pos) {
+        if let Some(square) = maze.squares.get_mut(&new_pos) {
             update(square, &new_pos, &dir, cost + 1, &mut todo);
             update(square, &new_pos, &dir.turn_left(), cost + 1001, &mut todo);
             update(square, &new_pos, &dir.turn_right(), cost + 1001, &mut todo);
         }
     }
+}
+
+pub fn part1(input: &mut Input) -> u32 {
+    travel(&mut input.maze, input.start);
     *input
         .maze
         .squares
@@ -98,8 +104,27 @@ pub fn part1(mut input: Input) -> u32 {
         .unwrap()
 }
 
-pub fn part2(mut input: Input) -> u32 {
-    0
+pub fn part2(mut input: Input) -> usize {
+    let mut q = vec![(input.end, part1(&mut input))];
+    let mut visited = HashSet::new();
+    loop {
+        if q.is_empty() {
+            break;
+        }
+        let (pos, cost) = q.pop().unwrap();
+        if let Some(square) = input.maze.squares.get(&pos) {
+            for (dir, c) in square.iter() {
+                if *c == cost {
+                    visited.insert(pos);
+                    q.push((pos + dir.one80().into(), cost - 1));
+                } else if *c == cost - 1000 {
+                    visited.insert(pos);
+                    q.push((pos + dir.one80().into(), cost - 1001));
+                }
+            }
+        }
+    }
+    visited.len() + 1 // add start
 }
 
 #[cfg(test)]
@@ -108,11 +133,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(input()), 130536);
+        assert_eq!(part1(&mut input()), 130536);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 0);
+        assert_eq!(part2(input()), 1024);
     }
 }
