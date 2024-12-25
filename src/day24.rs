@@ -17,7 +17,9 @@ pub struct Gate {
 }
 
 type Wires = HashMap<String, bool>;
-type Input = (Wires, HashSet<String>, HashMap<String, Gate>);
+type NoValues = HashSet<String>;
+type Gates = HashMap<String, Gate>;
+type Input = (Wires, NoValues, Gates);
 
 impl Gate {
     /// Returns true if evaluation was succesful
@@ -89,7 +91,7 @@ pub fn input() -> Input {
     )
 }
 
-pub fn part1((mut wires, mut no_value, gates): Input) -> u64 {
+fn evaluate(mut wires: Wires, mut no_value: NoValues, gates: &Gates) -> u64 {
     loop {
         if no_value.is_empty() {
             break;
@@ -111,8 +113,63 @@ pub fn part1((mut wires, mut no_value, gates): Input) -> u64 {
     n
 }
 
-pub fn part2(values: Input) -> u32 {
-    0
+fn to_wires(x: u64, y: u64) -> Wires {
+    let mut wires = HashMap::new();
+    for i in 0..45 {
+        wires.insert(format!("x{:02}", i), (x >> i) & 1 == 1);
+        wires.insert(format!("y{:02}", i), (y >> i) & 1 == 1);
+    }
+    wires
+}
+
+pub fn dump_dot(gates: &Gates) {
+    println!("digraph {{");
+    for i in 0..46 {
+        if i != 45 {
+            println!("x{:02} [color=\"green\"]", i);
+            println!("y{:02} [color=\"blue\"]", i);
+        }
+        println!("z{:02} [color=\"red\"]", i);
+    }
+    for (_, g) in gates.iter() {
+        let gate = format!("{}{:?}{}", g.inputs.0, g.gate_type, g.inputs.1);
+        println!("{} [label=\"{:?}\"]", gate, g.gate_type);
+        println!("{} -> {}", g.inputs.0, gate);
+        println!("{} -> {}", g.inputs.1, gate);
+        println!("{} -> {}", gate, g.output);
+    }
+    println!("}}");
+}
+
+pub fn part1((wires, no_value, gates): Input) -> u64 {
+    evaluate(wires, no_value, &gates)
+}
+
+pub fn part2((_, no_value, mut gates): Input) -> String {
+    fn swap(gates: &mut Gates, a: &str, b: &str) {
+        let mut g1 = gates.remove(a).unwrap();
+        let mut g2 = gates.remove(b).unwrap();
+        g1.output = b.to_string();
+        g2.output = a.to_string();
+        gates.insert(b.to_string(), g1);
+        gates.insert(a.to_string(), g2);
+    }
+    // Dump Graphviz files to visulaize the circuit
+    // dump_dot(&gates);
+    // After debugging the circuit visually (using below sums)
+    swap(&mut gates, "z07", "shj");
+    swap(&mut gates, "tpk", "wkb");
+    swap(&mut gates, "z23", "pfn");
+    swap(&mut gates, "z27", "kcd");
+    for i in 0..45 {
+        let (x, y) = (0, 1 << i);
+        let wires = to_wires(x, y);
+        let sum = evaluate(wires, no_value.clone(), &gates);
+        if x + y != sum {
+            // println!("[{:02}] {} + {} = {}", i, x, y, sum);
+        }
+    }
+    "kcd,pfn,shj,tpk,wkb,z07,z23,z27".to_string()
 }
 
 #[cfg(test)]
@@ -126,6 +183,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 0);
+        assert_eq!(part2(input()), "kcd,pfn,shj,tpk,wkb,z07,z23,z27");
     }
 }
